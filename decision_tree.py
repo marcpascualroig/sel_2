@@ -3,14 +3,14 @@ from itertools import combinations
 import math
 import random
 class DecisionTreeClassifier:
-    def __init__(self, num_features, num_random_features=None, features_indices=None, max_depth=None, min_samples_split=1, min_impurity=0):
+    def __init__(self, num_features, num_random_features=None, features_indices=None, max_depth=None, min_samples_split=1, min_impurity=-1):
         self.max_depth = max_depth
         self.min_samples_split = min_samples_split
         self.min_impurity = min_impurity
         if features_indices is None:
             self.selected_features_indices = range(num_features)
         else:
-            self.selected_features_indices = []
+            self.selected_features_indices = features_indices
         if num_random_features is None or num_random_features<0:
             self.num_random_features = 0
         else:
@@ -29,13 +29,18 @@ class DecisionTreeClassifier:
 
         # Stopping criteria
         if (self.max_depth is not None and depth >= self.max_depth) or num_samples < self.min_samples_split or len(unique_classes) == 1:
+            print('returning class', self._most_common_class(y))
+            print(y)
             return {'class': self._most_common_class(y)}
 
         # Find best split (impurity)
         best_split = self._find_best_split(X, y)
+        #print(best_split)
 
         #stopping criteria, impurity threshold
         if len(best_split)==0 or best_split['impurity'] <= self.min_impurity:
+            print('returning class', self._most_common_class(y))
+            print(y)
             return {'class': self._most_common_class(y)}
 
         #add counting for feature importance
@@ -45,6 +50,8 @@ class DecisionTreeClassifier:
         left_subtree = self._build_tree(*best_split['left'], depth + 1)
         right_subtree = self._build_tree(*best_split['right'], depth + 1)
 
+        #print('left', left_subtree)
+        #print('right', right_subtree)
 
         return {'feature_index': best_split['feature_index'],
                 'partition': best_split['values_subsets'],
@@ -74,9 +81,6 @@ class DecisionTreeClassifier:
 
                 left_indices = np.where(np.isin(X[:, feature_index], list(left_values)))
                 right_indices = np.where(np.isin(X[:, feature_index], list(right_values)))
-
-                print('left', left_indices)
-                print('right', right_indices)
 
                 if len(left_indices[0]) < self.min_samples_split or len(right_indices[0]) < self.min_samples_split:
                     continue
@@ -136,7 +140,6 @@ class DecisionTreeClassifier:
     def _predict_single(self, x, tree):
         #print(x)
         if 'class' in tree:
-            #print(tree['class'])
             return tree['class']
         else:
             #print(tree['feature_index'])

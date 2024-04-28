@@ -3,7 +3,7 @@ from decision_tree import DecisionTreeClassifier
 import random
 
 
-class RandomForest:
+class DecisionForest:
     def __init__(self, tot_features, NT=1, F=None, max_depth=None):
         self.n_estimators = NT
         self.tot_features = tot_features
@@ -17,12 +17,12 @@ class RandomForest:
 
     def fit(self, X, y):
         for _ in range(self.n_estimators):
-            tree = DecisionTreeClassifier(num_features=self.tot_features, num_random_features=self.n_features, max_depth=self.max_depth)
-            # Randomly sample data with replacement for each tree (bootstrapping)
-            sample_indices = np.random.choice(len(X), size=len(X), replace=True)
-            X_sampled = X[sample_indices]
-            y_sampled = y[sample_indices]
-            new_frequencies = tree.fit(X_sampled, y_sampled)
+            #random subset of features of size F
+            selected_features = random.sample(range(self.tot_features), self.n_features)
+            print(selected_features)
+            #decision tree
+            tree = DecisionTreeClassifier(num_features=self.tot_features, num_random_features=None, features_indices= selected_features, max_depth=self.max_depth)
+            new_frequencies = tree.fit(X, y)
             self.feature_frequencies += new_frequencies
             self.estimators.append(tree)
 
@@ -37,7 +37,6 @@ class RandomForest:
             max_count = np.max(counts)
             most_voted_classes = unique_classes[counts == max_count]
             majority_classes[idx] = random.choice(most_voted_classes)
-
         #print(majority_classes)
         return majority_classes
 
