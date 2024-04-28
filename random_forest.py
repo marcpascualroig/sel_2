@@ -16,6 +16,9 @@ class RandomForest:
         self.feature_frequencies = np.zeros(tot_features)
 
     def fit(self, X, y):
+        if self.tot_features < self.n_features:
+            print('number of features is larger than the total number of features!')
+            exit()
         for _ in range(self.n_estimators):
             tree = DecisionTreeClassifier(num_features=self.tot_features, num_random_features=self.n_features, max_depth=self.max_depth)
             # Randomly sample data with replacement for each tree (bootstrapping)

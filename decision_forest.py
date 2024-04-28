@@ -16,28 +16,32 @@ class DecisionForest:
         self.feature_frequencies = np.zeros(tot_features)
 
     def fit(self, X, y):
+        if self.tot_features < self.n_features:
+            print('number of features is larger than the total number of features!')
+            exit()
         for _ in range(self.n_estimators):
             #random subset of features of size F
             selected_features = random.sample(range(self.tot_features), self.n_features)
-            print(selected_features)
             #decision tree
-            tree = DecisionTreeClassifier(num_features=self.tot_features, num_random_features=None, features_indices= selected_features, max_depth=self.max_depth)
-            new_frequencies = tree.fit(X, y)
-            self.feature_frequencies += new_frequencies
+            X_aux=X[:, selected_features]
+            tree = DecisionTreeClassifier(num_features=self.n_features, num_random_features=None, features_indices=selected_features, max_depth=self.max_depth)
+            new_frequencies = tree.fit(X_aux, y)
+            self.feature_frequencies[selected_features] += new_frequencies
             self.estimators.append(tree)
+            print(self.feature_frequencies)
+        return self.feature_frequencies
 
     def predict(self, X):
         predictions = np.empty((len(X), len(self.estimators)), dtype=object)
         for i, tree in enumerate(self.estimators):
             predictions[:, i] = tree.predict(X)
-            #print(predictions[:, i])
+            print(predictions[:, i])
         majority_classes = np.empty(len(X), dtype=object)
         for idx in range(len(X)):
             unique_classes, counts = np.unique(predictions[idx], return_counts=True)
             max_count = np.max(counts)
             most_voted_classes = unique_classes[counts == max_count]
             majority_classes[idx] = random.choice(most_voted_classes)
-        #print(majority_classes)
         return majority_classes
 
 

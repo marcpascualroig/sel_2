@@ -29,8 +29,6 @@ class DecisionTreeClassifier:
 
         # Stopping criteria
         if (self.max_depth is not None and depth >= self.max_depth) or num_samples < self.min_samples_split or len(unique_classes) == 1:
-            print('returning class', self._most_common_class(y))
-            print(y)
             return {'class': self._most_common_class(y)}
 
         # Find best split (impurity)
@@ -39,19 +37,14 @@ class DecisionTreeClassifier:
 
         #stopping criteria, impurity threshold
         if len(best_split)==0 or best_split['impurity'] <= self.min_impurity:
-            print('returning class', self._most_common_class(y))
-            print(y)
             return {'class': self._most_common_class(y)}
 
         #add counting for feature importance
-        self.feature_frequencies[best_split['feature_index']] += 1
+        self.feature_frequencies[self.selected_features_indices.index(best_split['feature_index'])] += 1
 
         # expand tree with the best split
         left_subtree = self._build_tree(*best_split['left'], depth + 1)
         right_subtree = self._build_tree(*best_split['right'], depth + 1)
-
-        #print('left', left_subtree)
-        #print('right', right_subtree)
 
         return {'feature_index': best_split['feature_index'],
                 'partition': best_split['values_subsets'],
@@ -65,13 +58,13 @@ class DecisionTreeClassifier:
 
         #random selection of features
         if self.num_random_features >0:
-            features = random.sample(self.selected_features_indices, self.num_random_features)
+            features = random.sample(range(num_features), self.num_random_features)
         else:
-            features = self.selected_features_indices
+            features = range(num_features)
 
         #iterate for all features
         for feature_index in features:
-            feature_values = np.unique(X[:, feature_index])
+            feature_values = np.unique(X[:, feature_index].astype(str))
             #generate all possible split-point subsets
             partitions = self._get_combinations(feature_values)
             #loop for all possible subsets
@@ -91,7 +84,7 @@ class DecisionTreeClassifier:
 
                 if impurity < best_impurity:
                     best_split = {
-                        'feature_index': feature_index,
+                        'feature_index': self.selected_features_indices[feature_index],
                         'values_subsets': partition,
                         'left': (X[left_indices], y[left_indices]),
                         'right': (X[right_indices], y[right_indices]),
@@ -142,8 +135,6 @@ class DecisionTreeClassifier:
         if 'class' in tree:
             return tree['class']
         else:
-            #print(tree['feature_index'])
-            #print(tree['partition'])
             if x[tree['feature_index']] in tree['partition'][0]:
                 #print('left')
                 return self._predict_single(x, tree['left'])
