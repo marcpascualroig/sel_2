@@ -1,5 +1,5 @@
 import numpy as np
-from decision_tree import DecisionTreeClassifier
+from decision_treev2 import DecisionTreeClassifier
 import random
 
 
@@ -10,24 +10,28 @@ class RandomForest:
         if F is None:
             self.n_features = tot_features
         else:
-            self.n_features = F
+            self.n_features = int(F)
         self.max_depth = max_depth
         self.estimators = []
         self.feature_frequencies = np.zeros(tot_features)
+        self.feature_frequencies_2 = np.zeros(tot_features)
 
     def fit(self, X, y):
         if self.tot_features < self.n_features:
             print('number of features is larger than the total number of features!')
             exit()
-        for _ in range(self.n_estimators):
-            tree = DecisionTreeClassifier(num_features=self.tot_features, num_random_features=self.n_features, max_depth=self.max_depth)
+        tree = DecisionTreeClassifier(num_features=self.tot_features, num_random_features=self.n_features,
+                                      max_depth=self.max_depth)
+        for i in range(self.n_estimators):
             # Randomly sample data with replacement for each tree (bootstrapping)
             sample_indices = np.random.choice(len(X), size=len(X), replace=True)
             X_sampled = X[sample_indices]
             y_sampled = y[sample_indices]
-            new_frequencies = tree.fit(X_sampled, y_sampled)
-            self.feature_frequencies += new_frequencies
+            freqs1, freqs2 = tree.fit(X_sampled, y_sampled)
+            self.feature_frequencies += freqs1
+            self.feature_frequencies_2 += freqs2
             self.estimators.append(tree)
+        return self.feature_frequencies, self.feature_frequencies_2
 
     def predict(self, X):
         predictions = np.empty((len(X), len(self.estimators)), dtype=object)

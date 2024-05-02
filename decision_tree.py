@@ -17,11 +17,12 @@ class DecisionTreeClassifier:
             self.num_random_features = num_random_features
         self.tree = None
         self.feature_frequencies = np.zeros(num_features)
-        self.verbose=True
+        self.feature_frequencies_2 = np.zeros(num_features)
+
 
     def fit(self, X, y):
         self.tree = self._build_tree(X, y)
-        return self.feature_frequencies
+        return self.feature_frequencies, self.feature_frequencies_2
 
     def _build_tree(self, X, y, depth=0):
         num_samples, num_features = X.shape
@@ -41,6 +42,7 @@ class DecisionTreeClassifier:
 
         #add counting for feature importance
         self.feature_frequencies[self.selected_features_indices.index(best_split['feature_index'])] += 1
+        self.feature_frequencies_2[self.selected_features_indices.index(best_split['feature_index'])] += num_samples
 
         # expand tree with the best split
         left_subtree = self._build_tree(*best_split['left'], depth + 1)
@@ -54,7 +56,7 @@ class DecisionTreeClassifier:
     def _find_best_split(self, X, y):
         num_samples, num_features = X.shape
         best_split = {}
-        best_impurity = 1.1
+        best_impurity = 1
 
         #random selection of features
         if self.num_random_features >0:
@@ -131,13 +133,10 @@ class DecisionTreeClassifier:
         return np.array([self._predict_single(x, self.tree) for x in X])
 
     def _predict_single(self, x, tree):
-        #print(x)
         if 'class' in tree:
             return tree['class']
         else:
             if x[tree['feature_index']] in tree['partition'][0]:
-                #print('left')
                 return self._predict_single(x, tree['left'])
             else:
-                #print('right')
                 return self._predict_single(x, tree['right'])

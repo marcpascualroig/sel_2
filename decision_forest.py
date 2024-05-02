@@ -1,5 +1,5 @@
 import numpy as np
-from decision_tree import DecisionTreeClassifier
+from decision_treev2 import DecisionTreeClassifier
 import random
 
 
@@ -14,28 +14,35 @@ class DecisionForest:
         self.max_depth = max_depth
         self.estimators = []
         self.feature_frequencies = np.zeros(tot_features)
+        self.feature_frequencies_2 = np.zeros(tot_features)
 
     def fit(self, X, y):
-        if self.tot_features < self.n_features:
+        if self.n_features != "random" and self.tot_features < self.n_features:
             print('number of features is larger than the total number of features!')
             exit()
+        if self.n_features == "random":
+            random_num_features = True
+        else:
+            random_num_features = False
+
         for _ in range(self.n_estimators):
+            if random_num_features:
+                self.n_features = random.randint(1, self.tot_features)
             #random subset of features of size F
             selected_features = random.sample(range(self.tot_features), self.n_features)
             #decision tree
             X_aux=X[:, selected_features]
-            tree = DecisionTreeClassifier(num_features=self.n_features, num_random_features=None, features_indices=selected_features, max_depth=self.max_depth)
-            new_frequencies = tree.fit(X_aux, y)
-            self.feature_frequencies[selected_features] += new_frequencies
+            tree = DecisionTreeClassifier(num_features=self.n_features, selected_feature_indices=selected_features, num_random_features=None, max_depth=self.max_depth)
+            freqs1, freqs2 = tree.fit(X_aux, y)
+            self.feature_frequencies[selected_features] += freqs1
+            self.feature_frequencies_2[selected_features] += freqs2
             self.estimators.append(tree)
-            print(self.feature_frequencies)
-        return self.feature_frequencies
+        return self.feature_frequencies, self.feature_frequencies_2
 
     def predict(self, X):
         predictions = np.empty((len(X), len(self.estimators)), dtype=object)
         for i, tree in enumerate(self.estimators):
             predictions[:, i] = tree.predict(X)
-            print(predictions[:, i])
         majority_classes = np.empty(len(X), dtype=object)
         for idx in range(len(X)):
             unique_classes, counts = np.unique(predictions[idx], return_counts=True)
