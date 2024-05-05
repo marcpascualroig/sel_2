@@ -1,0 +1,57 @@
+ACCURACY
+1, 1: 75.56
+1, 2: 82.22
+1, 3: 93.33
+10, 1: 91.11
+10, 2: 91.11
+10, 3: 91.11
+25, 1: 91.11
+25, 2: 91.11
+25, 3: 91.11
+50, 1: 91.11
+50, 2: 91.11
+50, 3: 91.11
+75, 1: 88.89
+75, 2: 91.11
+75, 3: 91.11
+100, 1: 88.89
+100, 2: 91.11
+100, 3: 91.11
+FREQUENCIES
+1, 1 &sepal length - sepal width - petal width - petal length - \\ 
+1, 2 &petal length - petal width - sepal width - sepal length - \\ 
+1, 3 &petal width - petal length - sepal width - sepal length - \\ 
+10, 1 &petal length - sepal width - sepal length - petal width - \\ 
+10, 2 &petal length - petal width - sepal width - sepal length - \\ 
+10, 3 &petal width - petal length - sepal width - sepal length - \\ 
+25, 1 &sepal length - sepal width - petal width - petal length - \\ 
+25, 2 &petal length - petal width - sepal width - sepal length - \\ 
+25, 3 &petal length - petal width - sepal width - sepal length - \\ 
+50, 1 &sepal length - sepal width - petal length - petal width - \\ 
+50, 2 &petal length - petal width - sepal length - sepal width - \\ 
+50, 3 &petal length - petal width - sepal width - sepal length - \\ 
+75, 1 &petal width - sepal width - sepal length - petal length - \\ 
+75, 2 &petal length - petal width - sepal length - sepal width - \\ 
+75, 3 &petal length - petal width - sepal width - sepal length - \\ 
+100, 1 &petal width - sepal length - petal length - sepal width - \\ 
+100, 2 &petal length - petal width - sepal length - sepal width - \\ 
+100, 3 &petal length - petal width - sepal width - sepal length - \\ 
+FREQUENCIES 2
+1, 1 & sepal length - sepal width - petal length - petal width - \\ 
+1, 2 & petal length - petal width - sepal width - sepal length - \\ 
+1, 3 & petal width - petal length - sepal width - sepal length - \\ 
+10, 1 & petal length - sepal length - petal width - sepal width - \\ 
+10, 2 & petal length - petal width - sepal length - sepal width - \\ 
+10, 3 & petal width - petal length - sepal width - sepal length - \\ 
+25, 1 & petal length - petal width - sepal length - sepal width - \\ 
+25, 2 & petal length - petal width - sepal length - sepal width - \\ 
+25, 3 & petal length - petal width - sepal width - sepal length - \\ 
+50, 1 & petal length - petal width - sepal length - sepal width - \\ 
+50, 2 & petal length - petal width - sepal length - sepal width - \\ 
+50, 3 & petal length - petal width - sepal width - sepal length - \\ 
+75, 1 & petal length - petal width - sepal length - sepal width - \\ 
+75, 2 & petal length - petal width - sepal length - sepal width - \\ 
+75, 3 & petal length - petal width - sepal width - sepal length - \\ 
+100, 1 & petal length - petal width - sepal length - sepal width - \\ 
+100, 2 & petal length - petal width - sepal length - sepal width - \\ 
+100, 3 & petal length - petal width - sepal width - sepal length - \\ 

@@ -23,24 +23,16 @@ class DecisionTreeClassifier:
         self.numerical_feature = np.full(num_features, False, dtype=bool)
 
 
+
     def fit(self, X, y):
-        # generate all possible 2 subsets partitions (categorical) or thresholds (numerical) for all the features
-        features = range(self.num_features)
-        partitions = [None] * self.num_features
-        for feature_index in features:
-            if self._is_numeric_array(X[:, feature_index]):
-                feature_values = np.unique(X[:, feature_index])
-                partitions[feature_index] = self._get_thresholds_numerical(feature_values)
-                self.numerical_feature[feature_index] = True
-            else:
-                feature_values = np.unique(X[:, feature_index].astype(str))
-                partitions[feature_index] = self._get_combinations_categorical(feature_values)
         #generate tree
-        print(partitions)
-        self.tree = self._build_tree(X, y, partitions)
+        for feature_index in range(self.num_features):
+            if self._is_numeric_array(X[:, feature_index]):
+                self.numerical_feature[feature_index] = True
+        self.tree = self._build_tree(X, y)
         return self.feature_frequencies, self.feature_frequencies_2
 
-    def _build_tree(self, X, y, partitions, depth=0):
+    def _build_tree(self, X, y, depth=0):
         num_samples, num_features = X.shape
         unique_classes = np.unique(y)
 
@@ -49,46 +41,48 @@ class DecisionTreeClassifier:
             return {'class': self._most_common_class(y)}
 
         # Find best split (impurity)
-        best_split = self._find_best_split(X, y, partitions)
+        best_split, current_impurity = self._find_best_split(X, y)
         #print(best_split)
 
         #stopping criteria, impurity threshold
         if len(best_split)==0 or best_split['impurity'] <= self.min_impurity:
             return {'class': self._most_common_class(y)}
 
-        # eliminate already used partition
-        index = self.selected_feature_indices.index(best_split['feature_index'][0])
-        partitions[index] = [partition for partition in
-                                                       partitions[index] if
-                                                       partition != best_split['values_subsets']]
-
         #add counting for feature importance
         self.feature_frequencies[self.selected_feature_indices.index(best_split['feature_index'][0])] += 1
-        self.feature_frequencies_2[self.selected_feature_indices.index(best_split['feature_index'][0])] += num_samples
+        self.feature_frequencies_2[self.selected_feature_indices.index(best_split['feature_index'][0])] += num_samples*(current_impurity - best_split['impurity'])
 
-        # expand tree with the best split
-        left_subtree = self._build_tree(*best_split['left'], partitions, depth + 1)
-        right_subtree = self._build_tree(*best_split['right'], partitions, depth + 1)
+        left_subtree = self._build_tree(*best_split['left'], depth + 1)
+        right_subtree = self._build_tree(*best_split['right'], depth + 1)
 
         return {'feature_index': best_split['feature_index'],
                 'partition': best_split['values_subsets'],
                 'left': left_subtree,
                 'right': right_subtree}
 
-    def _find_best_split(self, X, y, partitions):
+    def _find_best_split(self, X, y):
         num_samples, num_features = X.shape
         best_split = {}
-        best_impurity = 1
+        best_impurity = self._calculate_impurity(y)
+        current_imputiry = best_impurity
 
         #random selection of features
         if self.num_random_features >0:
             features = random.sample(range(num_features), self.num_random_features)
         else:
             features = range(self.num_features)
+        partitions = [None] * len(features)
+        for i, feature_index in enumerate(features):
+            if self.numerical_feature[feature_index]:
+                feature_values = np.unique(X[:, feature_index])
+                partitions[i] = self._get_thresholds_numerical(feature_values)
+            else:
+                feature_values = np.unique(X[:, feature_index].astype(str))
+                partitions[i] = self._get_combinations_categorical(feature_values)
 
         #iterate for all features
-        for feature_index in features:
-            for partition in partitions[feature_index]:
+        for i, feature_index in enumerate(features):
+            for partition in partitions[i]:
                 if self.numerical_feature[feature_index]:
                     threshold = partition
                     left_indices = np.where(X[:, feature_index] <= threshold)
@@ -116,7 +110,7 @@ class DecisionTreeClassifier:
                         'impurity': impurity
                     }
                     best_impurity = impurity
-        return best_split
+        return best_split, current_imputiry
 
 
     def _get_combinations_categorical(self, lst):
@@ -143,9 +137,9 @@ class DecisionTreeClassifier:
 
     def _get_thresholds_numerical(self, lst):
         midpoints = []
-        for i in range(len(lst) - 100):
+        for i in range(len(lst) - 1):
             # Calculate the midpoint between consecutive unique values
-            midpoint = (lst[i] + lst[i + 100]) / 2.0
+            midpoint = (lst[i] + lst[i + 1]) / 2.0
             midpoints.append(midpoint)
         return midpoints
 

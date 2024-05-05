@@ -15,8 +15,11 @@ class DecisionForest:
         self.estimators = []
         self.feature_frequencies = np.zeros(tot_features)
         self.feature_frequencies_2 = np.zeros(tot_features)
+        self.random_seed = 42
 
     def fit(self, X, y):
+        np.random.seed(self.random_seed)
+        random.seed(self.random_seed)
         if self.n_features != "random" and self.tot_features < self.n_features:
             print('number of features is larger than the total number of features!')
             exit()
@@ -48,7 +51,7 @@ class DecisionForest:
             unique_classes, counts = np.unique(predictions[idx], return_counts=True)
             max_count = np.max(counts)
             most_voted_classes = unique_classes[counts == max_count]
-            majority_classes[idx] = random.choice(most_voted_classes)
+            majority_classes[idx] = most_voted_classes[0]
         return majority_classes
 
 
